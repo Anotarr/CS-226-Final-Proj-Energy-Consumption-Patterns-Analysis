@@ -1,0 +1,42 @@
+table Buildings
+	lineageTag: cc8076e0-58a6-43d5-8d65-9723471f3aff
+
+	column Building
+		dataType: string
+		lineageTag: 22a6ee50-3e34-4ac7-b365-fc6de9f2b81e
+		summarizeBy: none
+		sourceColumn: Building
+
+		annotation SummarizationSetBy = Automatic
+
+	column City
+		dataType: string
+		lineageTag: 90f859d0-3cd9-42f9-bf1a-bb335215cd9f
+		summarizeBy: none
+		sourceColumn: City
+
+		annotation SummarizationSetBy = Automatic
+
+	column Country
+		dataType: string
+		lineageTag: f587e9c7-443d-4da7-9d50-91c03e9b32d6
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Buildings = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\wyatt\OneDrive\Desktop\Personal Docs\School\CS-226 SQL\Energy Consumption\Energy Consumptions Dataset.xlsx"), null, true),
+				    #"Building Master_Sheet" = Source{[Item="Building Master",Kind="Sheet"]}[Data],
+				    #"Changed Type" = Table.TransformColumnTypes(#"Building Master_Sheet",{{"Column1", type text}, {"Column2", type text}, {"Column3", type text}}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Changed Type",{{"Column1", "Building"}, {"Column2", "City"}, {"Column3", "Country"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

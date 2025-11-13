@@ -1,0 +1,94 @@
+table 'Energy Consumptions'
+	lineageTag: 3a2bb3a1-07d3-473a-8045-69a34ffb682b
+
+	column Date
+		dataType: dateTime
+		formatString: m/d/yyyy
+		lineageTag: 3e2dde74-0bd6-4311-9707-ba42791de16b
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column Building
+		dataType: string
+		lineageTag: 400e8f88-0a5e-4555-83a4-0b614bbc50a0
+		summarizeBy: none
+		sourceColumn: Building
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Consumption SK'
+		dataType: int64
+		formatString: 0
+		lineageTag: 88545e50-7e5b-4bea-8830-fa0652829090
+		summarizeBy: sum
+		sourceColumn: Consumption SK
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Rate Key'
+		dataType: string
+		lineageTag: 4053d86e-6c1a-40c0-9e19-18aba491af51
+		summarizeBy: none
+		sourceColumn: Rate Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Consumption Values'
+		dataType: int64
+		formatString: 0
+		lineageTag: 3e95c3e4-e5e9-4721-9861-969383a6f2b9
+		summarizeBy: sum
+		sourceColumn: Consumption Values
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: 5b9fd75a-260f-46cf-8bf1-8c7d3e0f11df
+		summarizeBy: sum
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Energy Consumptions' = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\wyatt\OneDrive\Desktop\Personal Docs\School\CS-226 SQL\Energy Consumption\Energy Consumptions Dataset.xlsx"), null, true),
+				    #"Energy Consumptions_Sheet" = Source{[Item="Energy Consumptions",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Energy Consumptions_Sheet", [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Date", type date}, {"Building", type text}, {"Water Consumption", Int64.Type}, {"Electricity Consumption", Int64.Type}, {"Gas Consumption", Int64.Type}}),
+				    #"Inserted Year" = Table.AddColumn(#"Changed Type", "Year", each Date.Year([Date]), Int64.Type),
+				    #"Sorted Rows" = Table.Sort(#"Inserted Year",{{"Date", Order.Descending}}),
+				    #"Filtered Rows" = Table.SelectRows(#"Sorted Rows", each ([Date] <> null)),
+				    #"Inserted Merged Column" = Table.AddColumn(#"Filtered Rows", "Building by Date", each Text.Combine({Text.From([Date], "en-US"), [Building]}, "_"), type text),
+				    #"Sorted Rows1" = Table.Sort(#"Inserted Merged Column",{{"Date", Order.Ascending}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Sorted Rows1",{"Building by Date"}),
+				    #"Inserted Merged Column1" = Table.AddColumn(#"Removed Columns", "Merged", each Text.Combine({Text.From([Date], "en-US"), [Building], Text.From([Electricity Consumption], "en-US")}, ""), type text),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Inserted Merged Column1",{{"Merged", Int64.Type}}),
+				    #"Removed Columns1" = Table.RemoveColumns(#"Changed Type1",{"Merged"}),
+				    #"Added Index" = Table.AddIndexColumn(#"Removed Columns1", "Consumption_SK", 1, 1, Int64.Type),
+				    #"Sorted Rows2" = Table.Sort(#"Added Index",{{"Date", Order.Ascending}}),
+				    #"Changed Type2" = Table.TransformColumnTypes(#"Sorted Rows2",{{"Date", type date}}),
+				    #"Unpivoted Other Columns" = Table.UnpivotOtherColumns(#"Changed Type2", {"Date", "Building", "Year", "Consumption_SK"}, "Attribute", "Value"),
+				    #"Renamed Columns" = Table.RenameColumns(#"Unpivoted Other Columns",{{"Attribute", "Energy Type"}, {"Value", "Consumption Values"}}),
+				    #"Replaced Value" = Table.ReplaceValue(#"Renamed Columns","Consumption","",Replacer.ReplaceText,{"Energy Type"}),
+				    #"Merged Columns" = Table.CombineColumns(Table.TransformColumnTypes(#"Replaced Value", {{"Year", type text}}, "en-US"),{"Year", "Energy Type"},Combiner.CombineTextByDelimiter("_", QuoteStyle.None),"Rate Key"),
+				    #"Renamed Columns1" = Table.RenameColumns(#"Merged Columns",{{"Consumption_SK", "Consumption SK"}}),
+				    #"Inserted Year1" = Table.AddColumn(#"Renamed Columns1", "Year", each Date.Year([Date]), Int64.Type)
+				in
+				    #"Inserted Year1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

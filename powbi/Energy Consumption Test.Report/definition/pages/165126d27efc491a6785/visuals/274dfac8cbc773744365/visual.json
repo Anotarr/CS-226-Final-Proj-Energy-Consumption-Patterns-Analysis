@@ -1,0 +1,116 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "274dfac8cbc773744365",
+  "position": {
+    "x": 83.4256926952141,
+    "y": 208.56423173803526,
+    "z": 0,
+    "height": 275.66750629722918,
+    "width": 1090.88161209068
+  },
+  "visual": {
+    "visualType": "columnChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Energy Consumptions"
+                    }
+                  },
+                  "Property": "Year"
+                }
+              },
+              "queryRef": "Energy Consumptions.Year",
+              "nativeQueryRef": "Year",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dedicated Measures"
+                    }
+                  },
+                  "Property": "Total Electricity Units"
+                }
+              },
+              "queryRef": "Dedicated Measures.Total Electricity Units",
+              "nativeQueryRef": "Total Electricity Units"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dedicated Measures"
+                    }
+                  },
+                  "Property": "Total Gas Units"
+                }
+              },
+              "queryRef": "Dedicated Measures.Total Gas Units",
+              "nativeQueryRef": "Total Gas Units"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dedicated Measures"
+                    }
+                  },
+                  "Property": "Total Water Units"
+                }
+              },
+              "queryRef": "Dedicated Measures.Total Water Units",
+              "nativeQueryRef": "Total Water Units"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dedicated Measures"
+                    }
+                  },
+                  "Property": "Total Consumption"
+                }
+              },
+              "queryRef": "Dedicated Measures.Total Consumption",
+              "nativeQueryRef": "Total Consumption"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Dedicated Measures"
+                  }
+                },
+                "Property": "Total Electricity Units"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}
